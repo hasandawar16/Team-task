@@ -28,6 +28,22 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error', details: err.message });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+// Connect to MongoDB Atlas first before opening the server port
+async function startServer() {
+  try {
+    await prisma.$connect();
+    console.log('Successfully connected to MongoDB Atlas via Prisma!');
+    
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Fatal: Could not connect to MongoDB Atlas:', error);
+    process.exit(1); 
+  }
+}
+
+startServer();
