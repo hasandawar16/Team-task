@@ -22,6 +22,12 @@ app.get('/', (req, res) => {
   res.send('Team Task Manager API is running');
 });
 
-app.listen(PORT, () => {
+// Global error handler to prevent crashes
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err);
+  res.status(500).json({ error: 'Internal Server Error', details: err.message });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
