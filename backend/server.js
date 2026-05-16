@@ -31,19 +31,18 @@ app.use((err, req, res, next) => {
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Connect to MongoDB Atlas first before opening the server port
-async function startServer() {
+// Always start the HTTP server so Railway doesn't get a 502
+// Log any DB connection errors clearly
+app.listen(PORT, '0.0.0.0', async () => {
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
+  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
   try {
     await prisma.$connect();
-    console.log('Successfully connected to MongoDB Atlas via Prisma!');
-    
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    console.log('Successfully connected to MongoDB Atlas!');
   } catch (error) {
-    console.error('Fatal: Could not connect to MongoDB Atlas:', error);
-    process.exit(1); 
+    console.error('MongoDB connection error:', error.message);
+    console.error('Full error:', JSON.stringify(error, null, 2));
   }
-}
+});
 
-startServer();
